@@ -3,7 +3,7 @@ Contributors: jumpdemand
 Tags: tracking script, plugin, opt in forms, popup builder, dynamic content, geo-ip, click to call, Web Forms, Contact Form, marketing, web form creator, webform, form builder, GeoIP, optinmonster alternative, unbounce alternative
 Requires at least: 2.8
 Tested up to: 6.5.5
-Stable tag: 0.2.45
+Stable tag: 0.2.46
 
 
 
@@ -44,6 +44,10 @@ Fully automate your marketing with <a href="https://www2.activedemand.com/s/vaiX
 
 
 == Changelog ==
+= 0.2.46 =
+Updating timing for client side loading
+Updated branding
+
 = 0.2.45 =
 Optimized client side loading
 

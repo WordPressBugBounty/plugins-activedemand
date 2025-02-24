@@ -279,10 +279,9 @@ function add_client_rider(){
 	$short_code_args = http_build_query($args);
 	$version = activedemand_version();
     $script    = "
+        if (typeof JD == 'undefined') JD = {};
+        JD.wp_replacements = '$short_code_args&wp_version=$version';
         jQuery(document).ready(function(){
-	        if (typeof JD == 'undefined') JD = {};
-	        JD.wp_replacements = '$short_code_args&wp_version=$version';
-	         
             var load_data = function(){
                 if (JD.version > '2.2.27') return;
                 var data = JD.wp_replacements + '&client_side=1&version=' + JD.version;
