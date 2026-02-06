@@ -35,8 +35,10 @@ class ShortCodeCollector{
         $show = get_option(PREFIX.'_server_showpopups');
         $this->show_popups=(is_array($options) && array_key_exists(PREFIX.'_appkey', $options) && $show);
         $this->server_side=get_option(PREFIX.'_server_side', TRUE);
-        if (!isset($this->server_side)) {
-            $this->server_side=TRUE;
+           if (is_user_logged_in() && current_user_can('read')) {
+            $this->server_side = get_option(PREFIX . '_server_side', true);
+        } else {
+            $this->server_side = false;
         }
         $this->has_fired=FALSE;
     }
@@ -121,31 +123,34 @@ class ShortCodeCollector{
 
 }
 
-add_shortcode(PREFIX.'_block', __NAMESPACE__.'\activedemand_process_block_shortcode');
+add_shortcode(PREFIX . '_block', __NAMESPACE__ . '\activedemand_process_block_shortcode');
 
 function activedemand_process_block_shortcode($atts, $content = null){
 
-    $id = "";
-    //$id exists after this call.
-    extract(shortcode_atts(array('id' => ''), $atts));
-    $collector= ShortCodeCollector::get_instance();
+	 if ( is_admin() && ! current_user_can('edit_posts') ) {
+        return '';
+    }
 
+ 	$atts = shortcode_atts(['id' => ''], $atts);
+    $id = absint($atts['id']);
+    $collector= ShortCodeCollector::get_instance();
     $div_id=$collector->add_block($id);
-    $html= '';
-    return "<div id='$div_id'>$html</div>";
+	return '<div id="' . esc_attr($div_id) . '"></div>';
 }
 
 add_shortcode(PREFIX.'_form', __NAMESPACE__.'\activedemand_process_form_shortcode');
 
 function activedemand_process_form_shortcode($atts, $content = null){
 
-    $id = "";
-    //$id exists after this call.
-    extract(shortcode_atts(array('id' => ''), $atts));
+	 if ( is_admin() && ! current_user_can('edit_posts') ) {
+        return '';
+    }
+
+    $atts = shortcode_atts(['id' => ''], $atts);
+    $id = absint($atts['id']);
     $collector= ShortCodeCollector::get_instance();
     $div_id=$collector->add_form($id);
-    $html= '';
-    return "<div id='$div_id'></div>";
+    return '<div id="' . esc_attr($div_id) . '"></div>';
 }
 
 
@@ -153,13 +158,16 @@ add_shortcode(PREFIX.'_storyboard', __NAMESPACE__.'\activedemand_process_storybo
 
 function activedemand_process_storyboard_shortcode($atts, $content = null){
 
-    $id = "";
-    //$id exists after this call.
-    extract(shortcode_atts(array('id' => ''), $atts));
+	 if ( is_admin() && ! current_user_can('edit_posts') ) {
+        return '';
+    }
+
+
+    $atts = shortcode_atts(['id' => ''], $atts);
+    $id = absint($atts['id']);
     $collector= ShortCodeCollector::get_instance();
     $div_id=$collector->add_storyboard($id);
-    $html= '';
-    return "<div id='$div_id'>$html</div>";
+    return '<div id="' . esc_attr($div_id) . '"></div>';
 }
 
 //enqueue jQuery for popup purposes
@@ -305,7 +313,7 @@ function add_client_rider(){
                     if(typeof AD != 'undefined' && AD.setup_forms) AD.setup_ad_paging();
             	});
              }
-	         
+
              if (typeof AD == 'undefined') AD = {};
              if (!AD.ready_fns) AD.ready_fns = [];
              if (!AD.is_ready) AD.is_ready = false;

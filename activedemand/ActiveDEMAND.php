@@ -4,9 +4,10 @@
  * Plugin Name: ActiveDEMAND
  * Plugin URI: https://www2.activedemand.com/s/Gnf5n
  * Description: Adds the <a href="https://www2.activedemand.com/s/SW5nU">ActiveDEMAND</a> tracking script to your website. Add custom popups, use shortcodes to embed webforms and dynamic website content.
- * Version: 0.2.46
+ * Version: 0.2.47
  * Author: JumpDEMAND Inc.
  * Author URI: https://www2.activedemand.com/s/SW5nU
+ * Text Domain: active-demand
  * License:GPL-2.0+
  * License URI:http://www.gnu.org/licenses/gpl-2.0.txt
  */
@@ -14,7 +15,7 @@
 namespace ActiveDemand;
 
 
-define(__NAMESPACE__ . '\ACTIVEDEMAND_VER', '0.2.46');
+define(__NAMESPACE__ . '\ACTIVEDEMAND_VER', '0.2.47');
 define(__NAMESPACE__ . "\PLUGIN_VENDOR", "ActiveDEMAND");
 define(__NAMESPACE__ . "\PLUGIN_VENDOR_LINK", "https://1jp.cc/s/SW5nU");
 define(__NAMESPACE__ . "\PREFIX", 'activedemand');
@@ -990,92 +991,88 @@ add_action('woocommerce_thankyou', __NAMESPACE__ . '\activedemand_delete_cookie_
 
 
 add_action('wp_ajax_activedemand_access_rules_save', __NAMESPACE__ . '\activedemand_access_rules_save');
-add_action('wp_ajax_nopriv_activedemand_access_rules_save', __NAMESPACE__ . '\activedemand_access_rules_save');
 
 function activedemand_access_rules_save()
 {
+    if ( ! is_user_logged_in() || ! current_user_can('manage_options') ) {
+        wp_die( 'Forbidden', '', array( 'response' => 403 ) );
+    }
+    check_ajax_referer( 'activedemand_access_rules', 'nonce' );
 
     if (!empty($_POST)) {
         global $wpdb;
-        $table_access = '' . $wpdb->prefix . 'activedemand_access';
-        $table_access_rule = '' . $wpdb->prefix . 'activedemand_access_rule';
+        $table_access      = $wpdb->prefix . 'activedemand_access';
+        $table_access_rule = $wpdb->prefix . 'activedemand_access_rule';
 
-        if ($_POST['method'] == "activedemand_enable_access_control") {
+        if (!empty($_POST['method']) && $_POST['method'] === "activedemand_enable_access_control") {
+            $val = isset($_POST['activedemand_enable_access_control'])
+                ? sanitize_text_field($_POST['activedemand_enable_access_control']) : 0;
+
             if (!get_option(PREFIX . '_enable_access_control') && get_option(PREFIX . '_enable_access_control') != 0) {
-
-                add_option(PREFIX . '_enable_access_control', sanitize_text_field($_POST['activedemand_enable_access_control']));
+                add_option(PREFIX . '_enable_access_control', $val);
             } else {
-                update_option(PREFIX . '_enable_access_control', sanitize_text_field($_POST['activedemand_enable_access_control']));
+                update_option(PREFIX . '_enable_access_control', $val);
             }
         }
 
-        if ($_POST['method'] == "activedemand_save_rules") {
-            foreach ($_POST['custom_url_content'] as $custom_url_content) {
-                if ($custom_url_content['custom_url'] != '') {
+        if (!empty($_POST['method']) && $_POST['method'] === "activedemand_save_rules" && !empty($_POST['custom_url_content'])) {
+            foreach ((array) $_POST['custom_url_content'] as $custom_url_content) {
+                if (!empty($custom_url_content['custom_url'])) {
+                    $access_object_key = sanitize_text_field($_POST['access_object_key']);
+                    $access_match      = sanitize_text_field($_POST['access_match']);
 
                     $existing_id_access = $wpdb->get_row(
-                        $wpdb->prepare("SELECT id_access FROM $table_access WHERE object_key = %s ", array(sanitize_text_field($_POST['access_object_key'])))
+                        $wpdb->prepare("SELECT id_access FROM $table_access WHERE object_key = %s", $access_object_key)
                     );
 
                     if ($existing_id_access) {
-                        $success_access = $wpdb->update(
+                        $wpdb->update(
                             $table_access,
-                            array(
-                                'match' => sanitize_text_field($_POST['access_match']),
-                            ),
-                            array('object_key' => sanitize_text_field($_POST['access_object_key']))
+                            array('match' => $access_match),
+                            array('object_key' => $access_object_key)
                         );
 
-
+                        $id_rule_in = isset($custom_url_content['id_rule']) ? (int) $custom_url_content['id_rule'] : 0;
                         $existing_rules = $wpdb->get_row(
-                            $wpdb->prepare("SELECT * FROM $table_access_rule WHERE id_rule = %d ", array(sanitize_text_field($custom_url_content['id_rule'])))
+                            $wpdb->prepare("SELECT * FROM $table_access_rule WHERE id_rule = %d", $id_rule_in)
                         );
-
 
                         if (!$existing_rules) {
-                            $data_access_rule_1 = array(
-                                'id_access' => $existing_id_access->id_access,
-                                'url' => sanitize_url($custom_url_content['custom_url']),
-                            );
-
-                            $success_access_rule_1 = $wpdb->insert($table_access_rule, $data_access_rule_1);
+                            $wpdb->insert($table_access_rule, array(
+                                'id_access' => (int) $existing_id_access->id_access,
+                                'url'       => sanitize_url($custom_url_content['custom_url']),
+                            ));
                         }
                     } else {
-                        $data = array(
-                            'object_key' => sanitize_text_field($_POST['access_object_key']),
-                            'match' => sanitize_text_field($_POST['access_match']),
-                        );
-
-                        $success = $wpdb->insert($table_access, $data);
-                        $id_access = $wpdb->insert_id;
+                        $wpdb->insert($table_access, array(
+                            'object_key' => $access_object_key,
+                            'match'      => $access_match,
+                        ));
+                        $id_access = (int) $wpdb->insert_id;
 
                         if ($id_access) {
-                            $data_access_rule = array(
+                            $wpdb->insert($table_access_rule, array(
                                 'id_access' => $id_access,
-                                'url' => sanitize_url($custom_url_content['custom_url']),
-                            );
-
-                            $success_access_rule = $wpdb->insert($table_access_rule, $data_access_rule);
-                            var_dump($success_access_rule);
-                            exit();
+                                'url'       => sanitize_url($custom_url_content['custom_url']),
+                            ));
                         }
                     }
                 }
             }
         }
 
-
-        if ($_POST['method'] == "get_url_object_key") {
-
+        if (!empty($_POST['method']) && $_POST['method'] === "get_url_object_key") {
+            $valid_content = sanitize_text_field($_POST['valid_content']);
             $resp = $wpdb->get_results(
                 $wpdb->prepare(
-                    "SELECT ar.url, a.match , ar.id_rule FROM $table_access_rule ar
-            	    LEFT JOIN $table_access a ON ar.id_access = a.id_access where object_key = %s ",
-                    array(sanitize_text_field($_POST['valid_content']))
+                    "SELECT ar.url, a.match, ar.id_rule
+                     FROM $table_access_rule ar
+                     LEFT JOIN $table_access a ON ar.id_access = a.id_access
+                     WHERE object_key = %s",
+                    $valid_content
                 )
             );
-
-            echo json_encode($resp);
+            echo wp_json_encode($resp);
         }
     }
 
@@ -1084,20 +1081,24 @@ function activedemand_access_rules_save()
 
 
 add_action('wp_ajax_activedemand_delete_custom_url_content', __NAMESPACE__ . '\activedemand_delete_custom_url_content');
-add_action('wp_ajax_nopriv_activedemand_delete_custom_url_content', __NAMESPACE__ . '\activedemand_delete_custom_url_content');
 
 function activedemand_delete_custom_url_content()
 {
+    if ( ! is_user_logged_in() || ! current_user_can('manage_options') ) {
+        wp_die( 'Forbidden', 'active-demand', array( 'response' => 403 ) );
+    }
+    check_ajax_referer( 'activedemand_access_rules', 'nonce' );
 
-    if (!empty($_POST)) {
+    if (!empty($_POST['id_rule'])) {
         global $wpdb;
-        $id_rule = sanitize_text_field($_POST['id_rule']);
-        $table = '' . $wpdb->prefix . 'activedemand_access_rule';
-        $wpdb->delete($table, array('id_rule' => $id_rule));
+        $id_rule = (int) $_POST['id_rule'];
+        $table   = $wpdb->prefix . 'activedemand_access_rule';
+        $wpdb->delete($table, array('id_rule' => $id_rule), array('%d'));
     }
 
     wp_die();
 }
+
 
 add_action('init', __NAMESPACE__ . '\activedemand_matches_redirect');
 

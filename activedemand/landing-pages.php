@@ -40,7 +40,7 @@ function activedemand_return_landing_page()
         if (!defined('DONOTCACHEDB')) define('DONOTCACHEDB', TRUE);
         if (!defined('DONOTMINIFY')) define('DONOTMINIFY', TRUE);
         if (!defined('DONOTCACHEOBJECT')) define('DONOTCACHEOBJECT', TRUE);
-        // TODO: this is a full html/css/javascript landing page from out system        
+        // TODO: this is a full html/css/javascript landing page from out system
         die($lp);
     }
 }
@@ -106,22 +106,33 @@ function activedemand_get_landing_ids()
 add_action('wp_ajax_get_' . PREFIX . '_landing_html', __NAMESPACE__ . '\activedemand_ajax_get_landing_html');
 
 
-function activedemand_ajax_get_landing_html()
-{
+function activedemand_ajax_get_landing_html() {
     $nonce_name = PREFIX . '-landing-nonce';
-    if (!isset($_POST[$nonce_name]) || !isset($_POST['page'])) wp_die('Wrong Post');
-    $page_id = filter_var($_POST['page'], FILTER_SANITIZE_NUMBER_INT);
-    $action = 'ad_landing-' . $page_id;
-    if (!check_ajax_referer($action, $nonce_name)) wp_die('bad nonce');
-    $lp_id = filter_var($_POST['activedemand_landing_id'], FILTER_SANITIZE_NUMBER_INT);
-    if (!empty($lp_id)) {
-        $html = activedemand_get_landing_html($lp_id);
-        // TODO: this is a full html/css/javascript landing page from out system
-        die($html);
+
+
+    if (!isset($_POST[$nonce_name], $_POST['page'], $_POST['activedemand_landing_id'])) {
+        wp_die('Missing required fields');
     }
 
-    wp_die();
 
+    if (!current_user_can('edit_pages')) {
+        wp_die('Access denied');
+    }
+
+    $page_id = filter_var($_POST['page'], FILTER_SANITIZE_NUMBER_INT);
+    $lp_id   = filter_var($_POST['activedemand_landing_id'], FILTER_SANITIZE_NUMBER_INT);
+    $action  = 'ad_landing-' . $page_id;
+
+
+    if (!check_ajax_referer($action, $nonce_name)) {
+        wp_die('Invalid nonce');
+    }
+
+    if (!empty($lp_id)) {
+        $html = activedemand_get_landing_html($lp_id);
+        echo $html;
+        wp_die();
+    }
 }
 
 
@@ -170,14 +181,18 @@ function activedemand_landing_metabox($post)
 
 add_action('save_post', __NAMESPACE__ . '\activedemand_save_landing_page');
 
+function activedemand_save_landing_page($post_id) {
+    $nonce_field = PREFIX . '-landing-nonce';
 
-function activedemand_save_landing_page($post_id)
-{
-    if (!isset($_POST[PREFIX . '-landing-nonce'])) return;
-    if (!wp_verify_nonce(sanitize_text_field($_POST[PREFIX . '-landing-nonce']), 'ad_landing-' . $post_id)) return;
+    if (!isset($_POST[$nonce_field])) return;
+    if (!wp_verify_nonce(sanitize_text_field($_POST[$nonce_field]), 'ad_landing-' . $post_id)) return;
+
+    if (!current_user_can('edit_post', $post_id)) return;
+
     $index = 'is-' . PREFIX . '-landing';
-    $is_landing = isset($_POST[$index]) ? filter_var($_POST[$index], FILTER_VALIDATE_BOOLEAN) : FALSE;
+    $is_landing = isset($_POST[$index]) ? filter_var($_POST[$index], FILTER_VALIDATE_BOOLEAN) : false;
     $page_id = filter_var($_POST[PREFIX . '-landing-id'], FILTER_SANITIZE_NUMBER_INT);
+
     if ($is_landing) {
         update_post_meta($post_id, LANDING_META, $page_id);
     } else {

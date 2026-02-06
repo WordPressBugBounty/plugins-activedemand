@@ -137,13 +137,10 @@ class FormLinker
 
         if (isset($cart)) {
             $user_id = $cart['user_id'];
-        //   error_log("cart:".$cart['user_id']);
-        //   error_log(serialize($cart));
         }
 
         if (isset($user)){
             $user_id = $user->get_id();
-            // error_log("have user, this is the user_id:". $user->get_id());
         }
 
         if (!isset($order) && !isset($cart)) {
@@ -156,46 +153,45 @@ class FormLinker
             if (!$user_id) {
                 $user_id = username_exists($order_email);
             }
-            // error_log("order_email:". $order_email);
+
         }
 
-        // error_log("user_id:". $user_id);
         if ($order && $user_id == false) {
-            //guest
+
             $first_name = $order->get_billing_first_name();
             $last_name = $order->get_billing_last_name();
             $email = $order_email;
-            // error_log("guest");
+
         } else {
             if (!isset($user) && isset($user_id)) {
                 $user = new \WC_Customer($user_id);
-                // error_log("created user");
+
             }
             $first_name = $user->get_first_name();
             $last_name = $user->get_last_name();
             $email = $user->get_email();
         }
 
-        // error_log("email:". $email);
+
         foreach ($map as $name => $arg) {
             $key = str_replace("form[", "[field_", $name);
-            // error_log($key . '-' . $arg);
+
             switch ($arg) {
                 case 'username':
                     $data[$key] = $user->get_username();
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'user_firstname':
                     $data[$key] = $first_name;
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'user_lastname':
                     $data[$key] = $last_name;
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'user_email':
                     $data[$key] = $email;
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 //cart link
                 case 'cart_link':
@@ -209,7 +205,7 @@ class FormLinker
                             $data[$key] = esc_url(site_url('?recover-order='. $order_id));
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 //billing email address
                 case 'billing_email':
@@ -222,7 +218,7 @@ class FormLinker
                             $data[$key] = $user->get_billing_email();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
 
                 //billing address
@@ -236,7 +232,7 @@ class FormLinker
                             $data[$key] = $user->get_billing_company();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'billing_address_1':
                     if (!empty($order)) {
@@ -248,7 +244,7 @@ class FormLinker
                             $data[$key] = $user->get_billing_address_1();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'billing_postcode':
                     if (!empty($order)) {
@@ -260,7 +256,7 @@ class FormLinker
                             $data[$key] = $user->get_billing_postcode();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'billing_state':
                     if (!empty($order)) {
@@ -272,7 +268,7 @@ class FormLinker
                             $data[$key] = $user->get_billing_state();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'billing_city':
                     if (!empty($order)) {
@@ -284,7 +280,7 @@ class FormLinker
                             $data[$key] = $user->get_billing_city();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'billing_country':
                     if (!empty($order)) {
@@ -296,7 +292,7 @@ class FormLinker
                             $data[$key] = $user->get_billing_country();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'billing_phone':
                     if (!empty($order)) {
@@ -308,7 +304,7 @@ class FormLinker
                             $data[$key] = $user->get_billing_phone();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 //shipping address
                 case 'shipping_company':
@@ -321,7 +317,7 @@ class FormLinker
                             $data[$key] = $user->get_shipping_company();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'shipping_address_1':
                     if (!empty($order)) {
@@ -333,7 +329,7 @@ class FormLinker
                             $data[$key] = $user->get_shipping_address_1();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'shipping_postcode':
                     if (!empty($order)) {
@@ -345,7 +341,7 @@ class FormLinker
                             $data[$key] = $user->get_shipping_postcode();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'shipping_state':
                     if (!empty($order)) {
@@ -357,7 +353,7 @@ class FormLinker
                             $data[$key] = $user->get_shipping_state();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'shipping_city':
                     if (!empty($order)) {
@@ -369,7 +365,7 @@ class FormLinker
                             $data[$key] = $user->get_shipping_city();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'shipping_country':
                     if (!empty($order)) {
@@ -381,7 +377,7 @@ class FormLinker
                             $data[$key] = $user->get_shipping_country();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'shipping_phone':
                     if (!empty($order->get_shipping_phone())) {
@@ -391,7 +387,7 @@ class FormLinker
                             $data[$key] = $user->get_shipping_phone();
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'product_ids':
                     $ids = array();
@@ -402,7 +398,7 @@ class FormLinker
                         }
                         $data[$key] = \json_encode($ids);
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'product_names':
                     if (!empty($order)) {
@@ -411,7 +407,7 @@ class FormLinker
                         }, $order->get_items());
                         $data[$key] = \json_encode($names);
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'product_prices':
                     if (!empty($order)) {
@@ -422,7 +418,7 @@ class FormLinker
                         }
                         $data[$key] = \json_encode($price_map);
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'cart_product_data':
                     if ($cart) {
@@ -440,43 +436,40 @@ class FormLinker
                             }
                         }
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'order_id':
                     if (!empty($order)) {
                         $data[$key] = $order->get_id();
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'order_value':
                     if (!empty($order)) {
                         $data[$key] = $order->get_total();
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 case 'order_state_change':
                     if (!empty($order)) {
                         $data[$key] = $order->get_status();
                     }
-                    // error_log("key:".$key." data:".$data[$key]);
+
                     break;
                 default:
                     if (isset($user->ID)) {
                         $data[$key] = get_user_meta($user->get_id(), $arg);
                     }
-                //$data[$key]=get_user_meta($customer_id, $arg);
 
             }
         }
 
-        //print_r($data);exit();
         return $data;
     }
 
     public static function initialize_hooks()
     {
         //Register all applicable customer actions
-
         foreach (self::$customer_actions as $hook) {
             $setting = get_option(PREFIX . "_form_$hook");
             if (!$setting || empty($setting)) continue;
@@ -487,7 +480,6 @@ class FormLinker
                 $user = $user = new \WC_Customer($customer_id);//get_userdata($customer_id);
                 $data = FormLinker::map_field_keys($map, array('user' => $user));
                 $url = activedemand_api_url("forms/$id");
-                // error_log("post to form data:".serialize($data));
                 activedemand_postHTML($url, $data, 20);
             }, 15, 1);
 
@@ -503,10 +495,9 @@ class FormLinker
                 $map = $setting['map'];
                 $order = new \WC_Order($orderID);
                 $user_id = (int)$order->get_user_id();
-                $user = !empty($user_id) ? new \WC_Customer($user_id): NULL; //get_userdata($user_id) : NULL;
+                $user = !empty($user_id) ? new \WC_Customer($user_id): NULL;
                 $data = FormLinker::map_field_keys($map, array('user' => $user, 'order' => $order));
                 $url = activedemand_api_url("forms/$id");
-                // error_log("post to form data:".serialize($data));
                 activedemand_postHTML($url, $data, 20);
             }, 15, 1);
         }
@@ -670,12 +661,16 @@ add_action('wp_ajax_show_form_mapper', __NAMESPACE__ . '\ajax_show_form_mapper')
 
 function ajax_reset_action_form()
 {
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'Access denied' );
+    }
+
     $action = \filter_var($_POST['action_hook'], \FILTER_SANITIZE_STRING);
     check_ajax_referer($action . '-reset', 'form_mapper_reset_nonce');
 
     $id = \filter_var($_POST['form_id'], \FILTER_SANITIZE_NUMBER_INT);
 
-    check_ajax_referer($action . '-reset', 'form_mapper_reset_nonce');
     if ($id === 0) {
         delete_option(PREFIX . "_form_$action");
         echo "Form Deleted";
@@ -687,8 +682,13 @@ function ajax_reset_action_form()
     wp_die();
 }
 
+
 function ajax_update_action_form()
 {
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'Access denied' );
+    }
 
     $action = \filter_var($_POST['action_hook'], \FILTER_SANITIZE_STRING);
     $id = \filter_var($_POST['form_id'], \FILTER_SANITIZE_NUMBER_INT);
@@ -699,7 +699,6 @@ function ajax_update_action_form()
     foreach ($_POST['map'] as $k => $v) {
         $map[sanitize_text_field($k) . ']'] = sanitize_text_field($v);
     }
-
 
     $option = array('id' => $id, 'map' => $map);
 
@@ -712,8 +711,15 @@ function ajax_update_action_form()
     wp_die();
 }
 
+
+
 function ajax_show_form_mapper()
 {
+
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_die( 'Access denied' );
+    }
+
     $action = sanitize_text_field($_GET['action_hook']);
     check_ajax_referer($action . '-show', 'form_mapper_show_nonce');
 
@@ -723,6 +729,8 @@ function ajax_show_form_mapper()
     echo $linker->form_mapper($id, $action);
     wp_die();
 }
+
+
 
 add_action('admin_enqueue_scripts', function () {
     wp_enqueue_script('featherlight', plugins_url('/includes/featherlight/featherlight.min.js', __FILE__), array('jquery'));

@@ -6,38 +6,37 @@ namespace ActiveDemand;
 function activedemand_no_account_text()
 {
     ?>
-    <h2>Your <?php echo PLUGIN_VENDOR ?> Account</h2><br/>
-    You will require an <a
-        href="<?php echo PLUGIN_VENDOR_LINK ?>"><?php echo PLUGIN_VENDOR ?></a> account to use this plugin. With an
-    <?php echo PLUGIN_VENDOR ?> account you will be able
-    to:<br/>
+    <h2><?php printf( esc_html__( 'Your %s Account', 'active-demand' ), PLUGIN_VENDOR ); ?></h2><br/>
+    <?php printf(
+    wp_kses(
+        __( 'You will require an <a href="%1$s">%2$s</a> account to use this plugin. With a %2$s account you will be able to:', 'active-demand' ),
+        array( 'a' => array( 'href' => array() ) )
+    ),
+    esc_url( PLUGIN_VENDOR_LINK ),
+    esc_html( PLUGIN_VENDOR )
+);
+?>
+
     <ul style="list-style-type:circle;  margin-left: 50px;">
-        <li>Build Webforms for your pages, posts, sidebars, etc</li>
-        <li>Build Dynamic Content Blocks for your pages, posts, sidebars, etc</li>
+        <li><?php esc_html_e( 'Build Webforms for your pages, posts, sidebars, etc', 'active-demand' ); ?></li>
+        <li><?php esc_html_e( 'Build Dynamic Content Blocks for your pages, posts, sidebars, etc', 'active-demand' ); ?></li>
         <ul style="list-style-type:square;  margin-left: 50px;">
-            <li>Dynamically swap content based on GEO-IP data</li>
-            <li>Automatically change banners based on campaign duration</li>
-            <li>Stop showing forms to people who have already subscribed</li>
+            <li><?php esc_html_e( 'Dynamically swap content based on GEO-IP data', 'active-demand' ); ?></li>
+            <li><?php esc_html_e( 'Automatically change banners based on campaign duration', 'active-demand' ); ?></li>
+            <li><?php esc_html_e( 'Stop showing forms to people who have already subscribed', 'active-demand' ); ?></li>
         </ul>
-        <li>Deploy Popups and Subscriber bars</li>
-        <li>Automatically send emails to those who fill out your web forms</li>
-        <li>Automatically send emails to you when a form is filled out</li>
-        <li>Send email campaigns to your subscribers</li>
-        <li>Build your individual blog posts and have them automatically be posted on a schedule</li>
-        <li>Bulk import blog posts and have them post on a defined set of times and days</li>
+        <li><?php esc_html_e( 'Deploy Popups and Subscriber bars', 'active-demand' ); ?></li>
+        <li><?php esc_html_e( 'Automatically send emails to those who fill out your web forms', 'active-demand' ); ?></li>
+        <li><?php esc_html_e( 'Automatically send emails to you when a form is filled out', 'active-demand' ); ?></li>
+        <li><?php esc_html_e( 'Send email campaigns to your subscribers', 'active-demand' ); ?></li>
+        <li><?php esc_html_e( 'Build your individual blog posts and have them automatically be posted on a schedule', 'active-demand' ); ?></li>
+        <li><?php esc_html_e( 'Bulk import blog posts and have them post on a defined set of times and days', 'active-demand' ); ?></li>
     </ul>
 
     <div>
-        <h3>To sign up for your <?php echo PLUGIN_VENDOR ?> account, click <a
-                    href="<?php echo PLUGIN_VENDOR_LINK ?>"><strong>here</strong></a>
-        </h3>
+        <h3><?php printf( wp_kses_post( __( 'To sign up for your %1$s account, click <a href="%2$s"><strong>here</strong></a>', 'active-demand' ) ), esc_html( PLUGIN_VENDOR ), esc_url( PLUGIN_VENDOR_LINK ) ); ?></h3>
 
-        <p>
-            You will need to enter your application key in order to enable the form shortcodes. Your can find
-            your
-            <?php echo PLUGIN_VENDOR ?> API key in your account settings:
-
-        </p>
+        <p><?php esc_html_e( 'You will need to enter your application key in order to enable the form shortcodes. Your can find your API key in your account settings:', 'active-demand' ); ?></p>
 
         <p>
             <img src="<?php echo esc_url(get_base_url()) ?>/images/Screenshot2.png"/>
@@ -46,23 +45,36 @@ function activedemand_no_account_text()
     <?php
 }
 
+
 function activedemand_carts($options)
 {
     ?>
 
     <div class="tab">
-        <button class="tablinks active" onclick="adShowTab(event, 'automation')">Automation</button>
-        <button class="tablinks" onclick="adShowTab(event, 'cart_recovery')">Cart Recovery</button>
+        <button class="tablinks active" onclick="adShowTab(event, 'automation')">
+            <?php esc_html_e('Automation', 'active-demand'); ?>
+        </button>
+        <button class="tablinks" onclick="adShowTab(event, 'cart_recovery')">
+            <?php esc_html_e('Cart Recovery', 'active-demand'); ?>
+        </button>
     </div>
     <form method="post" action="options.php" class="ad-settings-form">
         <?php settings_fields(PREFIX . '_woocommerce_options'); ?>
-        <div class="tabcontent" id="automation" style="display:block;"><?php FormLinker::linked_forms_page(); ?></div>
-        <div class="tabcontent" id="cart_recovery"
-             style="display:none;"><?php activedemand_stale_cart_form($options); ?></div>
-        <input type="submit" value="Save Changes" class="button-primary ad-setting-save">
+
+        <div class="tabcontent" id="automation" style="display:block;">
+            <?php FormLinker::linked_forms_page(); ?>
+        </div>
+
+        <div class="tabcontent" id="cart_recovery" style="display:none;">
+            <?php activedemand_stale_cart_form($options); ?>
+        </div>
+
+        <input type="submit" value="<?php esc_attr_e('Save Changes', 'active-demand'); ?>" class="button-primary ad-setting-save">
     </form>
+
     <?php
 }
+
 
 function activedemand_stale_cart_form($options)
 {
@@ -71,10 +83,10 @@ function activedemand_stale_cart_form($options)
     $hours = isset($options['woocommerce_stalecart_hours']) ? $options['woocommerce_stalecart_hours'] : 2;
 
     ?>
-    <h2>WooCommerce Carts</h2>
+    <h2><?php esc_html_e('WooCommerce Carts', 'active-demand'); ?></h2>
     <table>
         <tr>
-            <th>Process Stale Carts</th>
+            <th><?php esc_html_e('Process Stale Carts', 'active-demand'); ?></th>
             <td><?php
                 echo FormLinker::form_link_table(array('' => PREFIX . '_stale_cart_map'));
                 ?>
@@ -82,20 +94,27 @@ function activedemand_stale_cart_form($options)
         </tr>
         <tr>
             <th>
-                Send Stale carts to <?php echo PLUGIN_VENDOR ?><br/> after it has sat for:
+                <?php
+                echo sprintf(
+                    /* translators: %s is the plugin vendor name */
+                    esc_html__('Send Stale carts to %s', 'active-demand'),
+                    esc_html(PLUGIN_VENDOR)
+                );
+                ?>
+                <br/><?php esc_html_e('after it has sat for:', 'active-demand'); ?>
             </th>
             <td style="padding-left:8px;">
                 <input type="number" min="1"
                        name="<?php echo PREFIX ?>_woocommerce_options_field[woocommerce_stalecart_hours]"
-                       value="<?php echo wp_kses($hours, array()); ?>"> hours
-
+                       value="<?php echo wp_kses($hours, array()); ?>">
+                <?php esc_html_e('hours', 'active-demand'); ?>
             </td>
         </tr>
     </table>
 
     <?php
-
 }
+
 
 function activedemand_plugin_options()
 {
@@ -475,13 +494,13 @@ function activedemand_plugin_options()
                         $multi_account_website = get_option(PREFIX . '_multi_account_website', FALSE);
                         ?>
                         <tr valign="top">
-                            <th scope="row">Enable Popup Pre-Loading?</th>
+                            <th scope="row"><?php esc_html_e('Enable Popup Pre-Loading?','active-demand') ?></th>
                             <td><input type="checkbox" name=<?php echo PREFIX . "_server_showpopups"; ?> value="1"
                                         <?php checked($show_popup, 1); ?> /></td>
                         </tr>
                         <?php $server_side = get_option(PREFIX . '_server_side', TRUE); ?>
                         <tr valign="top">
-                            <th scope="row">Enable Content Pre-Loading? (uncheck this if you use caching)</th>
+                            <th scope="row"><?php esc_html_e('Enable Content Pre-Loading? (uncheck this if you use caching)','active-demand') ?></th>
                             <td><input type="checkbox" name=<?php echo PREFIX . "_server_side"; ?> value="1"
                                         <?php checked($server_side, 1); ?> /></td>
                         </tr>
@@ -881,9 +900,12 @@ function activedemand_settings_styles()
 }
 
 function activedemand_settings_javascript()
-{ ?>
+{
+ $nonce = wp_create_nonce('activedemand_access_rules');
+	?>
     <script type="text/javascript">
         jQuery(document).ready(function () {
+			 window.ADSEC = { ajaxurl: ajaxurl, nonce: '<?php echo esc_js( $nonce ); ?>' };
             jQuery(".ad-custom-content-url-save").click(function () {
                 var custom_url_content = [];
                 var access_object_key = jQuery('select[name="access_control_content"] option:checked').val();
@@ -898,6 +920,7 @@ function activedemand_settings_javascript()
                 });
 
                 jQuery.post(ajaxurl, {
+					nonce: ADSEC.nonce,
                     access_match: access_match,
                     access_object_key: access_object_key,
                     custom_url_content: custom_url_content,
@@ -919,6 +942,7 @@ function activedemand_settings_javascript()
                 if (jQuery('input[name="activedemand_enable_access_control"]').is(":checked")) {
                     var activedemand_enable_access_control = 1;
                     jQuery.post(ajaxurl, {
+						nonce: ADSEC.nonce,
                         activedemand_enable_access_control: activedemand_enable_access_control,
                         action: "activedemand_access_rules_save",
                         method: "activedemand_enable_access_control"
@@ -929,6 +953,7 @@ function activedemand_settings_javascript()
                 } else {
                     var activedemand_enable_access_control = 0;
                     jQuery.post(ajaxurl, {
+						nonce: ADSEC.nonce,
                         activedemand_enable_access_control: activedemand_enable_access_control,
                         action: "activedemand_access_rules_save",
                         method: "activedemand_enable_access_control"
@@ -950,6 +975,7 @@ function activedemand_settings_javascript()
 
                 jQuery.post(ajaxurl, {
                     id_rule: id_rule,
+					nonce: ADSEC.nonce,
                     action: "activedemand_delete_custom_url_content"
                 }, function (response) {
 
@@ -993,6 +1019,7 @@ function activedemand_settings_javascript()
             var valid_content = jQuery('select[name="access_control_content"] option:selected').val();
             var valid_point_name = jQuery('select[name="access_control_content"] option:selected').text();
             jQuery.post(ajaxurl, {
+				 nonce: ADSEC.nonce,
                 valid_content: valid_content,
                 action: "activedemand_access_rules_save",
                 method: "get_url_object_key"
